@@ -10,10 +10,10 @@ Layout
 
 - `simple.js` is a very simple example that doesn't depend on any other files. It uses just express, without any templates.
 - `complex.js` is a more complicated example that includes rendering templates and accepting POST requests, as well as serving static files. Depends on:
-    
     - `/public` contains a `css` directory that contains the static CSS files that are served to style the pages found in...
     - `/views` contains [EJS](http://embeddedjs.com/ "EmbeddedJS") templates. `layout.ejs` is rendered for every page, and subpages replace the `<%- body %>` element. Each other *.ejs file contains a template that can be rendered. 
-- `socket.js` is maybe the most complicated example: it uses RaphaelJS and socket.io to synchronize squares on the screen while users drag and drop them. Its client code is in `/public/socket.html`, and is included as a tech demo without much futher explanation.
+- `socket.js` is maybe the most complicated example: it uses RaphaelJS and [socket.io](http://socket.io/) to synchronize squares on the screen while users drag and drop them. Its client code is in `/public/socket.html`, and is included as a tech demo without much futher explanation.
+
 - `package.json` defines the packages that we want to use with node to serve the website. That's Express and EmbeddedJS.
 - `Procfile` is used on Heroku to define what we want to run. It's set right now to run the complex example.
 
@@ -94,6 +94,8 @@ More Resources
 ### References
 - [ExpressJS](http://expressjs.com/)
 - [NodeJS](http://nodejs.org/)
+- [EJS](http://embeddedjs.com/)
+- [socket.io](http://socket.io/)
 
 ### Windows
 - Getting Node set up: https://github.com/joyent/node/wiki/Building-node.js-on-Cygwin-(Windows)
