@@ -17,10 +17,10 @@ Layout
     
     - `/public` contains a `css` directory that contains the static
       CSS files that are served to style the pages found in...
-    - `/views` contains (EJS)[http://embeddedjs.com] templates. 
-      `layout.ejs` is rendered for every page, and subpages replace
-      the `<%- body %>` element. Each other *.ejs file contains a
-      template that can be rendered. 
+    - `/views` contains [EJS](http://embeddedjs.com/ "EmbeddedJS") 
+      templates. `layout.ejs` is rendered for every page, and subpages 
+      replace the `<%- body %>` element. Each other *.ejs file contains
+      a template that can be rendered. 
 
 - `package.json` defines the packages that we want to use with 
   node to serve the website. That's Express and EmbeddedJS.
@@ -61,7 +61,7 @@ Directions
 Using Heroku
 ------------
 
-1. First, sign up for (Heroku)[http://heroku.com/].
+1. First, sign up for [Heroku](http://heroku.com/ "Heroku").
 
 2. Get the heroku gem running on your machine
 
