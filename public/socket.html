@@ -9,7 +9,10 @@
   // Connect to the socket.io server.
   var socket = io.connect('/raphael');
 
-  // Data...
+  // Data. Nickname is our server-assigned identifier, objects keeps 
+  // track of the RaphaelJS representations of room members with keys
+  // that are their nicknames, and positions maintains the server's 
+  // representation of their positions.
   var nickname = 0;
   var objects = {};
   var positions = {};
@@ -24,14 +27,21 @@
     // move will be called with dx and dy
     this.attr({x: this.ox + dx, y: this.oy + dy});
 
-    // Update our position representation, and notify the server.
-    positions[nickname] = { x: Math.floor(this.attrs.x), y: Math.floor(this.attrs.y) };
+    // Update our position representation, and notify the server. We floor
+    // our position in order to minimize transport costs. In other words,
+    // sending a bunch of decimal places isn't worth it.
+    positions[nickname] = { 
+      x: Math.floor(this.attrs.x), 
+      y: Math.floor(this.attrs.y) 
+    };
     socket.emit('move', positions[nickname]);
   },
   up = function() {
     // Nothing.
   };
 
+  // This is a special event that gets fired only on first joining. We
+  // get some initialization data from the server so we can get up and going.
   socket.on('me-join', function (data) {
     nickname = data.nickname;
     positions = data.positions;
@@ -54,6 +64,7 @@
     }
   });
 
+  // Someone joined this room, ignore if it's us.
   socket.on('join', function (data) {
     if (data.nickname == nickname) return;
 
@@ -67,6 +78,8 @@
     positions[data.nickname] = data.position;
   });
 
+  // Someone moved - it could have been us, so we ignore this message
+  // if it really was us that moved.
   socket.on('move', function (data) {
     if (data.nickname == nickname) return;
 
@@ -75,9 +88,8 @@
     positions[data.nickname] = data.position;
   });
 
+  // Someone left, remove them.
   socket.on('leave', function(data) {
-    // Someone left, remove them.
-
     objects[data.nickname].remove();
     delete positions[data.nickname];
   });
