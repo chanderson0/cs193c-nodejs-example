@@ -15,12 +15,13 @@ Directions
         cd node-v0.4.7
         ./configure
         make
-        sudo make install
+        sudo make install       # you'll have to enter your password
         curl http://npmjs.org/install.sh | sudo sh
 
 2. Navigate to your tutorial directory, then run:
 
-        node simple.js
+        npm install      # installs needed packages
+        node simple.js   # runs webserver
 
 3. Try these urls:
 
