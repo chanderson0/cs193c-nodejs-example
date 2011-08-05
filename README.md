@@ -1,5 +1,13 @@
+NodeJS + Express Example for CS193C
+==================
+
+This is a quick example set up for Stanford's CS193C during Summer 2011
+to demo how to use NodeJS, with supplemental files for getting this running
+on Heroku. It's intended to get people up to speed very quickly, so it
+sacrifices breadth for brevity.
+
 Directions
----------
+----------
 
 1. Get node and npm working
 
