@@ -1,0 +1,83 @@
+<div id="content"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/raphael-min.js"></script>
+<script>
+  var paper = Raphael("content", 600, 600);
+
+  var socket = io.connect('/raphael');
+
+  var me_nick = 0;
+  var me_position = {};
+  var me = null;
+  var objects = {};
+  var positions = {};
+
+  var start = function () {
+    // storing original coordinates
+    this.ox = this.attrs.x;
+    this.oy = this.attrs.y;
+  },
+  move = function (dx, dy) {
+    //console.log('move');
+    // move will be called with dx and dy
+    this.attr({x: this.ox + dx, y: this.oy + dy});
+    
+    me_position = { x: this.attrs.x, y: this.attrs.y };
+    //console.log(me_position);
+    notify_move(me_position);
+  },
+  up = function() {};
+
+  socket.on('me-join', function (data) {
+    me_nick = data.nickname;
+    me_position = data.position;
+
+    console.log(me_position);
+
+    me = paper.rect(me_position.x, me_position.y, 50, 50, 10)
+      .attr({fill: 'black'});
+
+    me.drag(move, start, up);
+  });
+
+  socket.on('positions', function (pos) {
+    for (var nickname in pos) {
+      data = pos[nickname];
+      newguy = paper.rect(data.x, data.y, 50, 50)
+        .attr({fill: 'blue'});
+      objects[nickname] = newguy;
+    }
+    
+    positions = pos;
+  });
+
+  socket.on('join', function (data) {
+    if (data.nickname == me_nick)
+      return;
+
+    newguy = paper.rect(data.position.x, data.position.y, 50, 50)
+      .attr({fill: 'blue'});
+    objects[data.nickname] = newguy;
+
+    positions[data.nickname] = data.position;
+  });
+
+  socket.on('move', function (data) {
+    if (data.nickname == me_nick)
+      return;
+
+    objects[data.nickname].attr(data.position);
+
+    positions[data.nickname] = data.position;
+  });
+
+  var notify_move = function(new_position) {
+    socket.emit('move', new_position);
+  }
+
+  socket.on('leave', function(data) {
+    objects[data.nickname].remove();
+    delete positions[data.nickname];
+  });
+</script>
