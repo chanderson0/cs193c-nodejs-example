@@ -25,7 +25,7 @@
     this.attr({x: this.ox + dx, y: this.oy + dy});
 
     // Update our position representation, and notify the server.
-    positions[nickname] = { x: Math.floor(this.attrs.x), y: Math.floor(this.attrs.x) };
+    positions[nickname] = { x: Math.floor(this.attrs.x), y: Math.floor(this.attrs.y) };
     socket.emit('move', positions[nickname]);
   },
   up = function() {
