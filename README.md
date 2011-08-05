@@ -6,6 +6,27 @@ to demo how to use NodeJS, with supplemental files for getting this running
 on Heroku. It's intended to get people up to speed very quickly, so it
 sacrifices breadth for brevity.
 
+Layout
+------
+
+- `simple.js` is a very simple example that doesn't depend on 
+  any other files. It uses just express, without any templates.
+- `complex.js` is a more complicated example that includes
+  rendering templates and accepting POST requests, as well as
+  serving static files. Depends on:
+    
+    - `/public` contains a `css` directory that contains the static
+      CSS files that are served to style the pages found in...
+    - `/views` contains (EJS)[http://embeddedjs.com] templates. 
+      `layout.ejs` is rendered for every page, and subpages replace
+      the `<%- body %>` element. Each other *.ejs file contains a
+      template that can be rendered. 
+
+- `package.json` defines the packages that we want to use with 
+  node to serve the website. That's Express and EmbeddedJS.
+- `Procfile` is used on Heroku to define what we want to run. It's
+  set right now to run the complex example.
+
 Directions
 ----------
 
@@ -40,7 +61,8 @@ Directions
 Using Heroku
 ------------
 
-1. First, sign up for Heroku.
+1. First, sign up for (Heroku)[http://heroku.com/].
+
 2. Get the heroku gem running on your machine
 
         gem install heroku
