@@ -3,6 +3,8 @@ NodeJS + Express Example for CS193C
 
 This is a quick example set up for Stanford's CS193C during Summer 2011 to demo how to use NodeJS, with supplemental files for getting this running on Heroku. It's intended to get people up to speed very quickly, so it sacrifices breadth for brevity.
 
+These directions are primarily directed at Unix-based users (i.e. on OS X). If that's not you, see the resources section at the bottom for more information on how to get this all going.
+
 Layout
 ------
 
@@ -18,7 +20,7 @@ Layout
 Directions
 ----------
 
-1. Get node and npm working
+1. Get node and npm working. Instructions for Unix/OS X:
 
         curl http://nodejs.org/dist/node-v0.4.7.tar.gz | tar xvz
         cd node-v0.4.7
@@ -57,7 +59,7 @@ Using Heroku
 
 3. Now, we have to get everything setup with Git. 
 
-    - On OSX, install git via this link: http://git-osx-installer.googlecode.com/files/git-1.7.6-x86_64-snow-leopard.dmg
+    - On OS X, install git via this link: http://git-osx-installer.googlecode.com/files/git-1.7.6-x86_64-snow-leopard.dmg
     - Now, set up your SSH keys. Follow this guide until step 3: http://help.github.com/mac-set-up-git/
 
 4. Get heroku working with the keys you just generated:
@@ -87,3 +89,7 @@ More Resources
 ### References
 - [ExpressJS](http://expressjs.com/)
 - [NodeJS](http://nodejs.org/)
+
+### Windows
+- Getting Node set up: https://github.com/joyent/node/wiki/Building-node.js-on-Cygwin-(Windows)
+- Installing heroku: http://flux88.com/2009/06/getting-started-with-heroku-on-windows/
