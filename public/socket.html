@@ -50,6 +50,7 @@
       newguy = paper.rect(data.x, data.y, 50, 50)
         .attr({fill: 'blue'});
       objects[n] = newguy;
+      newguy.toBack();
     }
   });
 
@@ -59,6 +60,9 @@
     // Someone joined, make an object for them.
     newguy = paper.rect(data.position.x, data.position.y, 50, 50).attr({fill: 'blue'});
     objects[data.nickname] = newguy;
+
+    // Keep the newcomer in the background so we don't overlap.
+    newguy.toBack();
 
     positions[data.nickname] = data.position;
   });
