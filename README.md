@@ -20,7 +20,7 @@ Layout
 Directions
 ----------
 
-1. Get node and npm working. Instructions for Unix/OS X:
+1. Get node and npm working. Open a terminal, then run these commands:
 
         curl http://nodejs.org/dist/node-v0.4.7.tar.gz | tar xvz
         cd node-v0.4.7
@@ -29,22 +29,27 @@ Directions
         sudo make install       # you'll have to enter your password
         curl http://npmjs.org/install.sh | sudo sh
 
-2. Navigate to your tutorial directory, then run:
+2. Download this tutorial (you have to modify the last line):
+
+        curl -L https://github.com/chanderson0/cs193c-nodejs-example/tarball/master | tar xvz
+        cd chanderson0-cs193c-nodejs-example-<RANDOM_NUMBERS>
+
+3. Install the needed packages, and run:
 
         npm install      # installs needed packages
         node simple.js   # runs webserver
 
-3. Try these urls:
+4. Try these urls:
 
     - http://localhost:3000/
     - http://localhost:3000/hello?name=Sally
     - http://localhost:3000/greetings/John
 
-4. Now, quit that process and load up the complex example.
+5. Now, quit that process and load up the complex example.
 
         node complex.js
 
-5. Try these urls:
+6. Try these urls:
 
     - http://localhost:3000/
 
