@@ -6,6 +6,23 @@ var express = require('express');
 var app = express.createServer();
 var socket = io.listen(app);
 
+// Configure socket for production.
+// You can ignore this if you're running locally.
+socket.configure('production', function(){
+  socket.enable('browser client minification');  // send minified client
+  socket.enable('browser client etag');          // apply etag caching logic based on version number
+  socket.set('log level', 1);                    // reduce logging
+  socket.set('transports', [                     // enable all transports (optional if you want flashsocket)
+      'websocket'
+    , 'flashsocket'
+    , 'htmlfile'
+    , 'xhr-polling'
+    , 'jsonp-polling'
+  ]);
+  
+  console.log("Staring on production");
+});
+
 // We're only using Express to serve public files anyway
 app.use(express.static(__dirname + '/public'));
 
