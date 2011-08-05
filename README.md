@@ -58,9 +58,9 @@ Using Heroku
 
 1. First, sign up for [Heroku](http://heroku.com/ "Heroku").
 
-2. Get the heroku gem running on your machine
+2. Get the heroku gem running on your machine (you'll have to enter your password)
 
-        gem install heroku
+        sudo gem install heroku
 
 3. Now, we have to get everything setup with Git. 
 
