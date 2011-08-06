@@ -19,17 +19,13 @@
     }
 
     div#content {
-      position: absolute;
-      top: 20px;
-      left: 50%;
+      margin: 50px auto;
+      padding: 5px 20px;
 
       width: 600px;
-      margin-left: -300px;
 
       background: #fff;
       box-shadow: 2px 2px 4px #aaa;
-
-      padding: 20px;
     }
 
     div#svg {
@@ -40,7 +36,7 @@
 
     h1 {
       font-size: 200%;
-      margin-bottom: 10px;
+      margin: 20px 0;
     }
 
     p {
@@ -51,13 +47,14 @@
 
 <body>
 
-<a href="https://github.com/chanderson0/cs193c-nodejs-example"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub"></a>
-
 <div id="content">
   <h1>SocketIO Test</h1>
-  <p>This is running on a socket.io server with <span id="how_many">0</span> connected users.</p>
+  <p>This is running on a socket.io server with <span id="how_many">0</span> connected user(s).</p>
   <div id="svg"></div>
+  <p>Click and drag the red box - that's you! Collect white circles for more points.</p>
 </div>
+
+<a href="https://github.com/chanderson0/cs193c-nodejs-example"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub"></a>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
@@ -73,21 +70,22 @@
   // track of the RaphaelJS representations of room members with keys
   // that are their nicknames, and positions maintains the server's 
   // representation of their positions.
-  var nickname = 0;
-  var users = 0;
-  var objects = {};
-  var positions = {};
+  var nickname = null;
+  var users = 0, nItems = 0;
+
+  var items = {};
+  var players = {};
 
   // Update our position representation, and notify the server. We floor
   // our position in order to minimize transport costs. In other words,
   // sending a bunch of decimal places isn't worth it.
   var slowNotify = ratelimit(function() {
-    positions[nickname] = { 
-      x: Math.floor(objects[nickname].attrs.x), 
-      y: Math.floor(objects[nickname].attrs.y) 
+    players[nickname].position = { 
+      x: Math.floor(players[nickname].obj.attrs.x), 
+      y: Math.floor(players[nickname].obj.attrs.y) 
     };
-    socket.emit('move', positions[nickname]);
-  }, 10);
+    socket.emit('move', players[nickname].position);
+  }, 30);
 
   // Functions for drag-and-drop.
   var start = function () {
@@ -104,10 +102,22 @@
     nx = Math.min(Math.max(nx, 0), paper.width - this.attrs.width);
     ny = Math.min(Math.max(ny, 0), paper.height - this.attrs.height);
 
-    // move will be called with dx and dy
+    // move() will be called with dx and dy
     this.attr({x: nx, y: ny});
-
     slowNotify();
+
+    // Also, you can only collect objects when moving. Let's 
+    // see if we collected anything...
+    var myBB = this.getBBox();
+    for (var itemID in items) {
+      item = items[itemID];
+      iBB = item.obj.getBBox();
+
+      // We hit something!
+      if (collides(myBB, iBB)) {
+        socket.emit('collect-item', { id: item.id, score: item.score });
+      }
+    }
   },
   up = function() {
     // Nothing.
@@ -117,29 +127,40 @@
   // get some initialization data from the server so we can get up and going.
   socket.on('me-join', function (data) {
     nickname = data.nickname;
-    positions = data.positions;
-    positions[nickname] = data.position;
+    players = data.players;
+    items = data.items;
 
-    // We're the first user!
-    users = 1;
+    // Render every item.
+    for (var i in items) {
+      // One more item...
+      ++nItems;
 
-    // Make an object for myself.
-    objects[nickname] = paper.rect(positions[nickname].x, positions[nickname].y, 50, 50, 10)
-      .attr({fill: '#990000'}); // Cardinal, of course.
-    objects[nickname].drag(move, start, up);
+      data = items[i];
+      item = paper.circle(data.x, data.y, data.radius)
+        .attr({fill: data.color});
+      item.score = data.score;
+
+      items[i].obj = item;
+    }
 
     // Make an object for everyone.
-    for (var n in positions) {
-      if (n == nickname) continue;
-
+    for (var n in players) {
       // One more user...
       ++users;
 
-      data = positions[n];
-      newguy = paper.rect(data.x, data.y, 50, 50)
-        .attr({fill: '#232F5E'});
-      objects[n] = newguy;
-      newguy.toBack();
+      data = players[n];
+      obj = null;
+      if (n == nickname) {
+        // Make an object for myself.
+        obj = paper.rect(data.position.x, data.position.y, 50, 50, 10)
+          .attr({fill: '#990000'}); // Cardinal, of course.
+        obj.drag(move, start, up);
+      } else {
+        obj = paper.rect(data.position.x, data.position.y, 50, 50)
+          .attr({fill: '#232F5E'}); // Blue
+        obj.toBack();
+      }
+      players[n].obj = obj;
     }
 
     update_size();
@@ -149,18 +170,52 @@
   socket.on('join', function (data) {
     if (data.nickname == nickname) return;
 
+    players[data.nickname] = data;
+
     // Someone joined, make an object for them.
-    newguy = paper.rect(data.position.x, data.position.y, 50, 50)
+    obj = paper.rect(data.position.x, data.position.y, 50, 50)
       .attr({fill: '#232F5E'});
-    objects[data.nickname] = newguy;
+    players[data.nickname].obj = obj;
 
     // Keep the newcomer in the background so we don't overlap.
-    newguy.toBack();
-    positions[data.nickname] = data.position;
+    obj.toBack();
 
     // We added a new friend.
     ++users;
     update_size();
+  });
+
+  // The server dictates an item was added.
+  socket.on('add-item', function (data) {
+    item = paper.circle(data.x, data.y, data.radius)
+      .attr({fill: data.color});
+    item.score = data.score;
+
+    items[data.id] = data;
+    items[data.id].obj = item;
+  });
+
+  // Someone collected an item - possibly us!
+  socket.on('item-collected', function (data) {
+    items[data.id].obj.remove();
+    delete items[data.id];
+
+    players[data.nickname].score = data.score;
+
+    // Draw a disappearing score label.
+    var pObj = players[data.nickname].obj;
+    var x = pObj.attrs.x + pObj.attrs.width / 2.0;
+    var y = pObj.attrs.y + pObj.attrs.height / 2.0;
+    var t = paper.text(x, y, '' + data.score)
+      .attr({'font-size': '15px', 'font-family': "'Gentium Basic', georgia, serif"});
+
+    if (data.nickname == nickname) {
+      t.attr({'fill': '#fff'});
+    }
+
+    t.animate({opacity: 0}, 1000, function() {
+      t.remove();
+    });
   });
 
   // Someone moved - it could have been us, so we ignore this message
@@ -169,14 +224,14 @@
     if (data.nickname == nickname) return;
 
     // Someone moved, move them.
-    objects[data.nickname].attr(data.position);
-    positions[data.nickname] = data.position;
+    players[data.nickname].obj.attr(data.position);
+    players[data.nickname].position = data.position;
   });
 
   // Someone left, remove them.
   socket.on('leave', function(data) {
-    objects[data.nickname].remove();
-    delete positions[data.nickname];
+    players[data.nickname].obj.remove();
+    delete players[data.nickname];
 
     // We lost one!
     --users;
@@ -201,6 +256,27 @@
       }
     });
   }
+
+  function collides(bb1, bb2) {
+    var l1, l2, r1, r2, t1, t2, b1, b2;
+
+    l1 = bb1.x;
+    r1 = bb1.x + bb1.width;
+    l2 = bb2.x;
+    r2 = bb2.x + bb2.width;
+    t1 = bb1.y;
+    b1 = bb1.y + bb1.height;
+    t2 = bb2.y;
+    b2 = bb2.y + bb2.height;
+
+    if (b1 < t2) return false;
+    if (t1 > b2) return false;
+    if (r1 < l2) return false;
+    if (l1 > r2) return false;
+
+    return true;
+  }
+
 </script>
 
 </body>

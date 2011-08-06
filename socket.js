@@ -19,8 +19,8 @@ socket.configure('production', function(){
     , 'xhr-polling'
     , 'jsonp-polling'
   ]);
-  
-  console.log("Staring on production");
+
+  console.log("Starting on production.");
 });
 
 // We're only using Express to serve public files anyway
@@ -36,8 +36,9 @@ app.listen(port, function(){
 // IDs are numbers 1,2,3...
 // Positions are stored as objects {x:,y:}
 // The world is 500x500.
-var id = 1;
-var positions = {};
+var playerID = 1, itemID = 1;
+var players = {};
+var items = {}, nItems = 0;
 var xMax = 500, yMax = 500;
 
 // Make a socket
@@ -46,35 +47,34 @@ var raphael = socket
   .of('/raphael')
 // When we connect, get this set up
   .on('connection', function (socket) {
-    // Send everyone else's positions.
-    socket.emit('positions', positions);
-
     //Set up this new member.
-    socket.nickname = id++;
-    socket.position = {
+    socket.nickname = 'player' + playerID++;
+    position = {
       x: Math.random() * xMax,
       y: Math.random() * yMax
+    };
+
+    // Store the new player in the players array.
+    players[socket.nickname] = {
+      nickname: socket.nickname,
+      position: position,
+      score: 0
     };
 
     // On join, notify where you should be.
     socket.emit('me-join', {
       nickname: socket.nickname,
-      position: socket.position,
-      positions: positions
+      items: items,
+      players: players
     });
-
-    positions[socket.nickname] = socket.position;
 
     // Let everyone know someone joined.
-    raphael.emit('join', { 
-      nickname: socket.nickname, 
-      position: positions[socket.nickname]
-    });
+    raphael.emit('join', players[socket.nickname]);
 
     // If we move, let everyone know.
     socket.on('move', function (data) {
       // Update my position.
-      positions[socket.nickname] = data;
+      players[socket.nickname].position = data;
 
       // Let everyone know, probably.
       raphael.volatile.emit('move', { 
@@ -83,9 +83,54 @@ var raphael = socket
       });
     });
 
+    // Collect items. We're totally dependent on the client here.
+    socket.on('collect-item', function (data) {
+      id = data.id;
+
+      // Can only collect an item that exists, and the first
+      // player to claim it, gets it.
+      if (items[id]) {
+        players[socket.nickname].score += data.score;
+        delete items[id];
+        nItems--;
+
+        // Let everyone know an item was picked up and who did it.
+        raphael.emit('item-collected', {
+          id: id,
+          nickname: socket.nickname,
+          score: players[socket.nickname].score
+        });
+      }
+    });
+
     // When we leave, let everyone know that too.
     socket.on('disconnect', function() {
-      delete positions[socket.nickname];
-      socket.broadcast.emit('leave', { nickname: socket.nickname });
+      delete players[socket.nickname];
+      raphael.emit('leave', { nickname: socket.nickname });
     });
   });
+
+//--------------
+//  GAME LOGIC
+//--------------
+
+// Add items to the board regularly.
+setInterval(function() {
+  if (nItems < 15) {
+    id = 'item'+itemID++;
+    radius = Math.floor(Math.random() * 10 + 10);
+    item = {
+      id: id,
+      x: Math.floor(Math.random() * xMax),
+      y: Math.floor(Math.random() * yMax),
+      color: '#fff',
+      radius: radius,
+      score: radius
+    };
+
+    items[id] = item;
+    nItems++;
+
+    raphael.emit('add-item', item);
+  }
+}, 500);
