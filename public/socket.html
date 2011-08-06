@@ -78,6 +78,17 @@
   var objects = {};
   var positions = {};
 
+  // Update our position representation, and notify the server. We floor
+  // our position in order to minimize transport costs. In other words,
+  // sending a bunch of decimal places isn't worth it.
+  var slowNotify = ratelimit(function() {
+    positions[nickname] = { 
+      x: Math.floor(objects[nickname].attrs.x), 
+      y: Math.floor(objects[nickname].attrs.y) 
+    };
+    socket.emit('move', positions[nickname]);
+  }, 10);
+
   // Functions for drag-and-drop.
   var start = function () {
     // storing original coordinates
@@ -96,14 +107,7 @@
     // move will be called with dx and dy
     this.attr({x: nx, y: ny});
 
-    // Update our position representation, and notify the server. We floor
-    // our position in order to minimize transport costs. In other words,
-    // sending a bunch of decimal places isn't worth it.
-    positions[nickname] = { 
-      x: Math.floor(this.attrs.x), 
-      y: Math.floor(this.attrs.y) 
-    };
-    socket.emit('move', positions[nickname]);
+    slowNotify();
   },
   up = function() {
     // Nothing.
@@ -179,8 +183,23 @@
     update_size();
   });
 
+  // --------------
+  // Misc functions
+  // --------------
   var update_size = function() {
     $('#how_many').html(users);
+  }
+
+  // Taken from jeffkreeftmeijer at https://gist.github.com/488562
+  function ratelimit(fn, ms) {
+    var last = (new Date()).getTime();
+    return (function() {
+      var now = (new Date()).getTime();
+      if (now - last > ms) {
+        last = now;
+        fn.apply(null, arguments);
+      }
+    });
   }
 </script>
 
