@@ -39,6 +39,13 @@
       margin: 20px 0;
     }
 
+    h2 {
+      margin: 15px 0;
+      font-weight: bold;
+      background: yellow;
+      padding: 4px;
+    }
+
     p {
       margin: 15px 0;
     }
@@ -56,9 +63,13 @@
 
 <a href="https://github.com/chanderson0/cs193c-nodejs-example"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub"></a>
 
+<!-- JQuery -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+<!-- socket.io and RaphaelJS -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/raphael-min.js"></script>
+
 <script>
   // Our SVG canvas.
   var paper = Raphael("svg", 600, 600);
@@ -122,6 +133,14 @@
   up = function() {
     // Nothing.
   };
+
+  socket.on('connect', function() {
+    socketType = socket.socket.transport.name;
+    console.log(socketType);
+    if ( socketType != 'websocket') {
+      $("#svg").before('<h2>Your browser isn\'t using WebSocket. This will run poorly for you and probably for the server too.</h2>');
+    }
+  });
 
   // This is a special event that gets fired only on first joining. We
   // get some initialization data from the server so we can get up and going.
