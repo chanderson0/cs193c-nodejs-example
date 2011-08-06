@@ -8,27 +8,43 @@
   <meta name="author" content="">
 
   <link rel="stylesheet" href="css/reset.css">
+  <link href='http://fonts.googleapis.com/css?family=Gentium+Basic' rel='stylesheet' type='text/css'>
   <style>
     html, body { height: 100%; }
 
     body {
       text-align: center;
       background: #eee;
+      font-family: 'Gentium Basic', georgia, serif;
     }
 
     div#content {
       position: absolute;
-      top: 50%;
+      top: 20px;
       left: 50%;
-
-      height: 600px;
-      margin-top: -300px;
 
       width: 600px;
       margin-left: -300px;
 
       background: #fff;
       box-shadow: 2px 2px 4px #aaa;
+
+      padding: 20px;
+    }
+
+    div#svg {
+      height: 600px;
+      width: 600px;
+      background: #999;
+    }
+
+    h1 {
+      font-size: 200%;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 15px 0;
     }
   </style>
 </head>
@@ -37,13 +53,18 @@
 
 <a href="https://github.com/chanderson0/cs193c-nodejs-example"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub"></a>
 
-<div id="content"></div>
+<div id="content">
+  <h1>SocketIO Test</h1>
+  <p>This is running on a socket.io server with <span id="how_many">0</span> connected users.</p>
+  <div id="svg"></div>
+</div>
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/raphael-min.js"></script>
 <script>
   // Our SVG canvas.
-  var paper = Raphael("content", 600, 600);
+  var paper = Raphael("svg", 600, 600);
 
   // Connect to the socket.io server.
   var socket = io.connect('/raphael');
@@ -53,6 +74,7 @@
   // that are their nicknames, and positions maintains the server's 
   // representation of their positions.
   var nickname = 0;
+  var users = 0;
   var objects = {};
   var positions = {};
 
@@ -94,6 +116,9 @@
     positions = data.positions;
     positions[nickname] = data.position;
 
+    // We're the first user!
+    users = 1;
+
     // Make an object for myself.
     objects[nickname] = paper.rect(positions[nickname].x, positions[nickname].y, 50, 50, 10)
       .attr({fill: '#990000'}); // Cardinal, of course.
@@ -103,12 +128,17 @@
     for (var n in positions) {
       if (n == nickname) continue;
 
+      // One more user...
+      ++users;
+
       data = positions[n];
       newguy = paper.rect(data.x, data.y, 50, 50)
         .attr({fill: '#232F5E'});
       objects[n] = newguy;
       newguy.toBack();
     }
+
+    update_size();
   });
 
   // Someone joined this room, ignore if it's us.
@@ -122,8 +152,11 @@
 
     // Keep the newcomer in the background so we don't overlap.
     newguy.toBack();
-
     positions[data.nickname] = data.position;
+
+    // We added a new friend.
+    ++users;
+    update_size();
   });
 
   // Someone moved - it could have been us, so we ignore this message
@@ -140,7 +173,15 @@
   socket.on('leave', function(data) {
     objects[data.nickname].remove();
     delete positions[data.nickname];
+
+    // We lost one!
+    --users;
+    update_size();
   });
+
+  var update_size = function() {
+    $('#how_many').html(users);
+  }
 </script>
 
 </body>
