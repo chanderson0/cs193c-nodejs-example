@@ -1,3 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>SocketIO Example</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" href="css/reset.css">
+  <style>
+    html, body { height: 100%; }
+
+    body {
+      text-align: center;
+      background: #eee;
+    }
+
+    div#content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+
+      height: 600px;
+      margin-top: -300px;
+
+      width: 600px;
+      margin-left: -300px;
+
+      background: #fff;
+      box-shadow: 2px 2px 4px #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
 <div id="content"></div>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -24,8 +61,16 @@
     this.oy = this.attrs.y;
   },
   move = function (dx, dy) {
+    // Don't move if we're going off the screen.
+    var nx = this.ox + dx;
+    var ny = this.oy + dy;
+
+    // Can't go off the screen;
+    nx = Math.min(Math.max(nx, 0), paper.width - this.attrs.width);
+    ny = Math.min(Math.max(ny, 0), paper.height - this.attrs.height);
+
     // move will be called with dx and dy
-    this.attr({x: this.ox + dx, y: this.oy + dy});
+    this.attr({x: nx, y: ny});
 
     // Update our position representation, and notify the server. We floor
     // our position in order to minimize transport costs. In other words,
@@ -49,7 +94,7 @@
 
     // Make an object for myself.
     objects[nickname] = paper.rect(positions[nickname].x, positions[nickname].y, 50, 50, 10)
-      .attr({fill: '#555'});
+      .attr({fill: '#990000'}); // Cardinal, of course.
     objects[nickname].drag(move, start, up);
 
     // Make an object for everyone.
@@ -58,7 +103,7 @@
 
       data = positions[n];
       newguy = paper.rect(data.x, data.y, 50, 50)
-        .attr({fill: 'blue'});
+        .attr({fill: '#232F5E'});
       objects[n] = newguy;
       newguy.toBack();
     }
@@ -69,7 +114,8 @@
     if (data.nickname == nickname) return;
 
     // Someone joined, make an object for them.
-    newguy = paper.rect(data.position.x, data.position.y, 50, 50).attr({fill: 'blue'});
+    newguy = paper.rect(data.position.x, data.position.y, 50, 50)
+      .attr({fill: '#232F5E'});
     objects[data.nickname] = newguy;
 
     // Keep the newcomer in the background so we don't overlap.
@@ -94,3 +140,6 @@
     delete positions[data.nickname];
   });
 </script>
+
+</body>
+</html>
