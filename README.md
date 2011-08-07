@@ -10,21 +10,23 @@ Layout
 
 - `simple` contains a very simple example that doesn't depend on any other files. It uses just express, without any templates.
     - `simple/app.js` runs the express server.
+
 - `complex` is a more complicated example that includes rendering templates and accepting POST requests, as well as serving static files. Depends on:
     - `complex/app.js` runs an express server with more features.
     - `complex/public` contains a `css` directory that contains the static CSS files that are served to style the pages found in...
     - `complex/views` contains [EJS](http://embeddedjs.com/ "EmbeddedJS") templates. `layout.ejs` is rendered for every page, and subpages replace the `<%- body %>` element. Each other *.ejs file contains a template that can be rendered. 
-    - `complex/Procfile` is a file that Heroku needs to serve your app. See instructions below.
     
 - `raphael` contains an `app.js` that just serves static files in `raphael/public`. You could just open the files directly, without running node.
 
 - `socket-simple` is a simple [socket.io](http://socket.io/) example, adapted from http://socket.io/#how-to-use
     - `socket-simple/app.js` runs the server side of the socket.
     - `socket-simple/public/index.html` contains the client-side code.
+
 - `socket-game` is maybe the most complicated example: it uses RaphaelJS and socket.io to play simple networked game. Its client code is in `/public/index.html`, and is included as a tech demo without much futher explanation. You can try it out on your machine, or on http://node.heyanderson.com/socket. Get some friends to go to that URL with you.
 
-- `package.json` defines the packages that we want to use with node to serve the website. That's Express and EmbeddedJS.
-- `Procfile` is used on Heroku to define what we want to run. It's set right now to run the complex example.
+- Other files:
+    - `package.json` defines the packages that we want to use with node to serve the website. That's Express and EmbeddedJS.
+    - `Procfile` is used on Heroku to define what we want to run. It's set right now to run the complex example.
 
 Directions
 ----------
