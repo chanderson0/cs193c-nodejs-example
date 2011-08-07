@@ -73,6 +73,11 @@
 <script>
   // Our SVG canvas.
   var paper = Raphael("svg", 600, 600);
+  var loading = paper.text(300, 300, "Loading...").attr({
+    'font-size': '35px', 
+    'font-family': "'Gentium Basic', georgia, serif",
+    'fill': '#ccc'
+  });
 
   // Connect to the socket.io server.
   var socket = io.connect('/raphael');
@@ -175,6 +180,7 @@
           .attr({fill: '#990000'}); // Cardinal, of course.
         obj.drag(move, start, up);
       } else {
+        // Make an object for someone else.
         obj = paper.rect(data.position.x, data.position.y, 50, 50)
           .attr({fill: '#232F5E'}); // Blue
         obj.toBack();
@@ -182,6 +188,8 @@
       players[n].obj = obj;
     }
 
+    // Remove the object that notifies us that we're still loading, because we're done.
+    loading.remove();
     update_size();
   });
 
