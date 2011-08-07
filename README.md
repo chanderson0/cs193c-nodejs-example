@@ -8,11 +8,20 @@ These directions are primarily directed at Unix-based users (i.e. on OS X). If t
 Layout
 ------
 
-- `simple.js` is a very simple example that doesn't depend on any other files. It uses just express, without any templates.
-- `complex.js` is a more complicated example that includes rendering templates and accepting POST requests, as well as serving static files. Depends on:
-    - `/public` contains a `css` directory that contains the static CSS files that are served to style the pages found in...
-    - `/views` contains [EJS](http://embeddedjs.com/ "EmbeddedJS") templates. `layout.ejs` is rendered for every page, and subpages replace the `<%- body %>` element. Each other *.ejs file contains a template that can be rendered. 
-- `socket.js` is maybe the most complicated example: it uses RaphaelJS and [socket.io](http://socket.io/) to synchronize squares on the screen while users drag and drop them. Its client code is in `/public/socket.html`, and is included as a tech demo without much futher explanation. You can try it out on your machine, or on http://node.heyanderson.com/socket.html. Get some friends to go to that URL with you.
+- `simple` contains a very simple example that doesn't depend on any other files. It uses just express, without any templates.
+    - `simple/app.js` runs the express server.
+- `complex` is a more complicated example that includes rendering templates and accepting POST requests, as well as serving static files. Depends on:
+    - `complex/app.js` runs an express server with more features.
+    - `complex/public` contains a `css` directory that contains the static CSS files that are served to style the pages found in...
+    - `complex/views` contains [EJS](http://embeddedjs.com/ "EmbeddedJS") templates. `layout.ejs` is rendered for every page, and subpages replace the `<%- body %>` element. Each other *.ejs file contains a template that can be rendered. 
+    - `complex/Procfile` is a file that Heroku needs to serve your app. See instructions below.
+    
+- `raphael` contains an `app.js` that just serves static files in `raphael/public`. You could just open the files directly, without running node.
+
+- `socket-simple` is a simple [socket.io](http://socket.io/) example, adapted from http://socket.io/#how-to-use
+    - `socket-simple/app.js` runs the server side of the socket.
+    - `socket-simple/public/index.html` contains the client-side code.
+- `socket-game` is maybe the most complicated example: it uses RaphaelJS and socket.io to play simple networked game. Its client code is in `/public/index.html`, and is included as a tech demo without much futher explanation. You can try it out on your machine, or on http://node.heyanderson.com/socket. Get some friends to go to that URL with you.
 
 - `package.json` defines the packages that we want to use with node to serve the website. That's Express and EmbeddedJS.
 - `Procfile` is used on Heroku to define what we want to run. It's set right now to run the complex example.
@@ -34,10 +43,11 @@ Directions
         curl -L https://github.com/chanderson0/cs193c-nodejs-example/tarball/master | tar xvz
         cd chanderson0-cs193c-nodejs-example-<RANDOM_NUMBERS>
 
-3. Install the needed packages, and run:
+3. Try the `simple` example:
 
+        cd simple        # go to the app directory
         npm install      # installs needed packages
-        node simple.js   # runs webserver
+        node app.js      # runs webserver
 
 4. Try these urls:
 
@@ -45,9 +55,11 @@ Directions
     - http://localhost:3000/hello?name=Sally
     - http://localhost:3000/greetings/John
 
-5. Now, quit that process and load up the complex example.
+5. Now, quit that process and load up the `complex` example.
 
-        node complex.js
+        cd ../complex    # go to next app directory 
+        npm install      # install packages for second app
+        node app.js      # runs webserver
 
 6. Try these urls:
 
@@ -71,8 +83,9 @@ Using Heroku
 
         heroku keys:add
 
-5. Create a git repo for all this stuff (inside the tutorial directory):
+5. Create a git repo for all this stuff (inside the `complex` directory):
 
+        cd complex
         git init
         git add .
         git commit -m "initial commit"
@@ -82,7 +95,7 @@ Using Heroku
         heroku create --stack cedar
         git push herkou master
 
-7. If everything went well, you should be able to do `heroku open` and see your app!
+7. If everything went well, you should be able to run `heroku open` and see your app!
 
 More Resources
 --------------

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>SocketIO Example</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+</head>
+
+<body>
+
+<button id="ping" onclick="ping();">Ping</button>
+<button id="pong" onclick="pong();">Ping</button>
+
+<div id="log"></log>
+
+<!-- socket.io and jQuery -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+<!-- socket.io client code -->
+<script>
+  // Connect to the socket.io server.
+  var socket = io.connect('/');
+
+  // This event is fired when we connect. 
+  socket.on('connect', function() {
+    divLog('Connected!');
+  });
+
+  // When we receive news, log it.
+  socket.on('news', function (data) {
+    divLog('Got some news: ' + data);
+  });
+
+  // When we click ping button, send the normal message ping.
+  ping = function() {
+    divLog('Sending ping');
+    socket.emit('ping', 'ping message');
+  }
+
+  // When we click pong, send the message pong with a callback.
+  pong = function() {
+    divLog('Sending pong');
+    socket.emit('pong', 'pong message', function(data) {
+      divLog('Got pong reciept: ' + data);
+    });
+  }
+
+  // Log what's going on.
+  divLog = function(msg) {
+    $("#log").prepend('<p>' + msg + '</p>');
+  }
+</script>
+
+</body>
+</html>
