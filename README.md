@@ -20,7 +20,7 @@ Layout
     - `socket-simple/app.js` runs the server side of the socket.
     - `socket-simple/public/index.html` contains the client-side code.
 
-- `socket-game` is maybe the most complicated example: it uses RaphaelJS and socket.io to play simple networked game. Its client code is in `/public/index.html`, and is included as a tech demo without much futher explanation. You can try it out on your machine, or on http://node.heyanderson.com/socket. Get some friends to go to that URL with you.
+- `socket-game` is maybe the most complicated example: it uses RaphaelJS and socket.io to play simple networked game. Its client code is in `/public/index.html`, and is included as a tech demo without much futher explanation. You can try it out on your machine, or on http://node.heyanderson.com/. Get some friends to go to that URL with you.
 
 - Other files:
     - `package.json` defines the packages that we want to use with node to serve the website. That's Express and EmbeddedJS.
