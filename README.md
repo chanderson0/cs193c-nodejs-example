@@ -15,8 +15,6 @@ Layout
     - `complex/app.js` runs an express server with more features.
     - `complex/public` contains a `css` directory that contains the static CSS files that are served to style the pages found in...
     - `complex/views` contains [EJS](http://embeddedjs.com/ "EmbeddedJS") templates. `layout.ejs` is rendered for every page, and subpages replace the `<%- body %>` element. Each other *.ejs file contains a template that can be rendered. 
-    
-- `raphael` contains an `app.js` that just serves static files in `raphael/public`. You could just open the files directly, without running node.
 
 - `socket-simple` is a simple [socket.io](http://socket.io/) example, adapted from http://socket.io/#how-to-use
     - `socket-simple/app.js` runs the server side of the socket.
